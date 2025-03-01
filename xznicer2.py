@@ -16,7 +16,7 @@ def xznicer2(inputfile):
         t1 = threading.Thread(target=execnicer, args=(inputfile, outputfile, nice))
         t1.start()
         t1.join()
-        totalsteps+=1
+        totalsteps += 1
         print(f"Steps: {totalsteps}/272")
 
     results.sort(key=lambda x: x[0])
@@ -25,14 +25,14 @@ def xznicer2(inputfile):
     print("Best choice:")
     best = results[0]
     print(f"nice={best[1]}, Uses {best[0]} bytes")
-    execnicer(inputfile, f"{inputfile}.nice{best[1]}.xz", best[1])
+    execnicer(inputfile, f"{inputfile}.nice{best[1]}.xz", int(best[1]))
 
 
 def execnicer(inputfile, outputfile, nice):
     with open(inputfile, "rb") as fin:  # read bytes mode
         bytes = fin.read()
     cbytes = lzma.compress(bytes, filters=[{
-        "id": lzma.FILTER_LZMA2, "nice_len": nice, "dict_size": 2**20, "lc": 0, "lp": 0, "pb": 0, "mode": lzma.MODE_NORMAL, "preset": 9
+        "id": lzma.FILTER_LZMA2, "nice_len": nice, "dict_size": 2**23, "lc": 0, "lp": 0, "pb": 0, "mode": lzma.MODE_NORMAL
     }])
     cbytes += lzma.LZMACompressor().flush()
     with lzma.open(outputfile, "wb") as fout:

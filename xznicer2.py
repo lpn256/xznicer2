@@ -25,7 +25,7 @@ def xznicer2(inputfile):
     print("Best choice:")
     best = results[0]
     print(f"nice={best[1]}, Uses {best[0]} bytes")
-    execnicer(inputfile, f"{inputfile}.nice{best[1]}.xz", nice)
+    execnicer(inputfile, f"{inputfile}.nice{best[1]}.xz", best[1])
 
 
 def execnicer(inputfile, outputfile, nice):

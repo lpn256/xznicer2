@@ -35,7 +35,7 @@ def execnicer(inputfile, outputfile, nice):
         "id": lzma.FILTER_LZMA2, "nice_len": nice, "dict_size": 2**20, "lc": 0, "lp": 0, "pb": 0, "mode": lzma.MODE_NORMAL, "preset": 9
     }])
     cbytes += lzma.LZMACompressor().flush()
-    with lzma.open(outputfile, "w") as fout:
+    with lzma.open(outputfile, "wb") as fout:
         fout.write(cbytes)
     size = os.path.getsize(outputfile)
     results.append((size, str(nice)))

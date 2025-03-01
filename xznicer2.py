@@ -4,11 +4,12 @@ import lzma
 
 def xznicer(inputfile, nice):
     output_filename = f"{inputfile}.nice{nice}.xz"  # Improved naming
-    with open(inputfile, 'rb') as fin:  # read bytes mode
+    with open(inputfile, "rb") as fin:  # read bytes mode
         bytes = fin.read()
-    lzc = lzma.LZMACompressor()
-    cbytes = lzc.compress(bytes)
-    cbytes += lzc.flush()
+    cbytes = lzma.compress(bytes, filters=[{
+    "id": lzma.FILTER_LZMA2, "nice_len": nice, "dict_size": 2**20, "lc": 3, "lp": 0, "pb": 2, "mode": lzma.MODE_FAST
+    }])
+    cbytes += lzma.LZMACompressor().flush()
     with lzma.open(output_filename, "w") as fout:
         fout.write(cbytes)
 
@@ -23,7 +24,7 @@ def main():
         print("No input file given")
         return
 
-    xznicer(args.inputfile, 200)  # Pass inputfile directly
+    xznicer(args.inputfile, 100)  # Pass inputfile directly
 
 if __name__ == "__main__":
     main()

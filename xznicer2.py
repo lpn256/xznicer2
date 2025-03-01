@@ -1,17 +1,41 @@
 #!/usr/bin/python3
 import argparse
 import lzma
+import os
+import threading
 
-def xznicer(inputfile, nice):
-    output_filename = f"{inputfile}.nice{nice}.xz"  # Improved naming
+
+results = []
+
+
+def xznicer2(inputfile):
+    nicevalues = list(range(2, 274))
+    for idx, nice in enumerate(nicevalues):
+        outputfile = f"/tmp/{inputfile}.nice{nice}.xz"  # Improved naming
+        t1 = threading.Thread(target=execnicer, args=(inputfile, outputfile, nice))
+        t1.start()
+        t1.join()
+    results.sort(key=lambda x: x[0])
+    for row in results:
+        print(row)
+    print("Best choice:")
+    best = results[0]
+    print(f"nice={best[1]}, Uses {best[0]} bytes")
+    execnicer(inputfile, f"{inputfile}.nice{best[1]}.xz", nice)
+
+
+def execnicer(inputfile, outputfile, nice):
     with open(inputfile, "rb") as fin:  # read bytes mode
         bytes = fin.read()
     cbytes = lzma.compress(bytes, filters=[{
-    "id": lzma.FILTER_LZMA2, "nice_len": nice, "dict_size": 2**20, "lc": 3, "lp": 0, "pb": 2, "mode": lzma.MODE_FAST
+        "id": lzma.FILTER_LZMA2, "nice_len": nice, "dict_size": 2**20, "lc": 3, "lp": 0, "pb": 2, "mode": lzma.MODE_FAST
     }])
     cbytes += lzma.LZMACompressor().flush()
-    with lzma.open(output_filename, "w") as fout:
+    with lzma.open(outputfile, "w") as fout:
         fout.write(cbytes)
+    size = os.path.getsize(outputfile)
+    results.append((size, str(nice)))
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -24,7 +48,8 @@ def main():
         print("No input file given")
         return
 
-    xznicer(args.inputfile, 100)  # Pass inputfile directly
+    xznicer2(args.inputfile)  # Pass inputfile directly
+
 
 if __name__ == "__main__":
     main()
